@@ -27,6 +27,7 @@ import random
 # this should make the process repeatable
 random.seed(10)
 
+
 num_classes = 10
 epochs = 30
 
