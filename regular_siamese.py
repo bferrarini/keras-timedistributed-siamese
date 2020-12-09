@@ -18,9 +18,12 @@ from tensorflow.keras.layers import Input, Flatten, Dense, Lambda, Conv2D
 from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.utils import plot_model
 import tensorflow.keras.backend as K
 
+
 from matplotlib import pyplot as plt
+import matplotlib.image as mpimg
 
 import random
 
@@ -30,6 +33,8 @@ random.seed(10)
 
 num_classes = 10
 epochs = 30
+
+show = False #displays the model diagram
 
 
 def euclidean_distance(vects):
@@ -135,7 +140,14 @@ distance = Lambda(euclidean_distance,
                   output_shape=eucl_dist_output_shape)([processed_a, processed_b])
 
 model = Model([input_a, input_b], distance)
+model.summary()
 
+if show:
+    # you need graphviz
+    plot_model(model, to_file="s-model.png", show_shapes=True, expand_nested=True)
+    img = mpimg.imread('s-model.png')
+    imgplot = plt.imshow(img)
+    plt.show()   
 
 rms = RMSprop()
 model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])

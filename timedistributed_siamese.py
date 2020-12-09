@@ -7,17 +7,18 @@ from tensorflow.keras.layers import Input, Flatten, Dense, Conv2D, TimeDistribut
 from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.utils import plot_model
 import tensorflow.keras.backend as K
-
+import matplotlib.image as mpimg
 
 from matplotlib import pyplot as plt
-import math
 
 random.seed(10)
 
 num_classes = 10
 epochs = 30
-pairs = 1
+
+show = False #displays the model diagram
 
 def euclidean_distance(vects):
     x,y = vects
@@ -98,7 +99,7 @@ x_train /= 255
 x_test /= 255
 input_shape = x_train.shape[1:]
 print("Base model input shape: {}".format(input_shape))
-time_input_shape = (pairs + 1, input_shape[0], input_shape[1], input_shape[2])
+time_input_shape = (2, input_shape[0], input_shape[1], input_shape[2])
 print("T model input shape: {}".format(time_input_shape))
 
 digit_indices = [np.where(y_train == i)[0] for i in range(num_classes)]
@@ -128,6 +129,13 @@ time_out = TimeDistributed(base_network, name = "TD")(time_input)
 model = Model(time_input, time_out)
 model.summary()
 
+
+if show:
+    # you need graphviz
+    plot_model(model, to_file="s-model.png", show_shapes=True, expand_nested=True)
+    img = mpimg.imread('s-model.png')
+    imgplot = plt.imshow(img)
+    plt.show()    
 
 rms = RMSprop()
 model.compile(loss=contrastive_loss, optimizer=rms, metrics=[accuracy])
