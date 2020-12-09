@@ -21,5 +21,6 @@ python timedistributed_siamese.py
 ```
 
 ## Performance
-The MNIST is a lightweight model designed to be fast to train and achieve a state of the art performance. You can replace the corresponding section of the script with your network.
+The siamese is based on a lightweight model designed to be fast to train. 
 Thirty epochs should yield about 81% accuracy on the training set and 70% on the test set.
+You can replace the corresponding section of the script with your network.
