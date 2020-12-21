@@ -1,3 +1,13 @@
+"""
+Copyright (c) 2020
+Author:
+  Bruno Ferrarini (University of Essex)
+This project is licensed under MIT.
+
+Timedistributed layer is used to implement a siamese network.
+
+"""
+
 import numpy as np
 import random
 from tensorflow.keras.datasets import mnist
@@ -20,14 +30,6 @@ epochs = 30
 
 show = False #displays the model diagram
 
-def euclidean_distance(vects):
-    x,y = vects
-    sum_square = K.sum(K.square(x-y), axis=1, keepdims=True)
-    return K.sqrt(K.maximum(sum_square, K.epsilon()))
-
-def eucl_dist_output_shape(shapes):
-    shape1, shape2 = shapes
-    return (shape1[0], 1)
 
 def contrastive_loss(y_true, y_pred):
     q = y_pred[:,0,:]
@@ -117,11 +119,6 @@ print("Shape of training labels", tr_y.shape)
 base_network = create_base_model(input_shape)
 base_network.summary()
 
-#base_input = Input(shape=input_shape, name='input_base')
-
-# because we re-use the same instance `base_network`,
-# the weights of the network
-# will be shared across the two branches
 
 time_input = Input(shape=time_input_shape, name = "TD_IN" )
 time_out = TimeDistributed(base_network, name = "TD")(time_input)

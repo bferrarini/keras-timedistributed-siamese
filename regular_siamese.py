@@ -4,12 +4,11 @@ Author:
   Bruno Ferrarini (University of Essex)
 This project is licensed under MIT.
 
-The source code is a modified version of the example shared at https://github.com/aspamers/siamese/blob/master/mnist_siamese_example.py to work with Tensorflow 2.0
+The source code is a modified version of the example shared at https://gist.github.com/mmmikael/0a3d4fae965bdbec1f9d to work with Tensorflow 2.0
 A siamese network is implemented with the regular twin-branch architecture and trained on MNIST.
 The performance metric is the accuracy in matching digits of the same class.
 
 """
-
 import numpy as np
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.datasets import cifar10
@@ -18,7 +17,7 @@ from tensorflow.keras.layers import Input, Flatten, Dense, Lambda, Conv2D
 from tensorflow.keras.layers import MaxPooling2D, BatchNormalization
 from tensorflow.keras.layers import Activation
 from tensorflow.keras.optimizers import RMSprop
-from tensorflow.keras.utils import plot_model
+from tensorflow.keras.utils import plot_model, to_categorical
 import tensorflow.keras.backend as K
 
 
@@ -32,7 +31,7 @@ random.seed(10)
 
 
 num_classes = 10
-epochs = 30
+epochs = 1
 
 show = False #displays the model diagram
 
@@ -84,9 +83,10 @@ def create_base_model(input_shape):
     embedding = Flatten()(embedding)
     embedding = Dense(128)(embedding)
     embedding = BatchNormalization()(embedding)
-    embedding = Activation(activation='relu')(embedding)
+    embedding = Dense(10)(embedding)
+    embedding = Activation(activation='softmax')(embedding)
 
-    return Model(model_input, embedding)
+    return Model(model_input, embedding, name="inner")
 
 def compute_accuracy(y_true, y_pred):
     '''Compute classification accuracy with a fixed threshold on distances.
@@ -107,6 +107,8 @@ x_train = x_train.astype('float32')
 x_test = x_test.astype('float32')
 x_train /= 255
 x_test /= 255
+y_train = y_train.astype('float32')
+y_test = y_test.astype('float32')
 input_shape = x_train.shape[1:]
 print("Base model input shape: {}".format(input_shape))
 time_input_shape = (2, input_shape[0], input_shape[1], input_shape[2])
@@ -142,6 +144,7 @@ distance = Lambda(euclidean_distance,
 model = Model([input_a, input_b], distance)
 model.summary()
 
+
 if show:
     # you need graphviz
     plot_model(model, to_file="s-model.png", show_shapes=True, expand_nested=True)
@@ -175,3 +178,20 @@ plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['Train', 'Test'], loc='upper left')
 plt.show()
+
+# Accessing and testing the model. 
+# You might need to train a model as a siamese but using it later as a regular single-branch model. 
+# 'inner' is the given name to the base model. Check the function 'create_base_model'
+
+y_train = to_categorical(y_train, num_classes)
+y_test = to_categorical(y_test, num_classes)
+
+inner_model = model.get_layer("inner")
+inner_model.summary()
+# compiling is required to call evaluate for example, to train the classifier or any added layers to the siamise stage (https://github.com/aspamers/siamese/blob/master/mnist_siamese_example.py)
+# in this example, we are only interest in showing the equivalence between the multi-branch training schema and timedistributed approach.
+# binary_crossentropy is chosen to have class prediction accuracy as a metric.
+# For the evaluation purpose the optimizer does not mind but it is required by the compile method
+inner_model.compile(loss='categorical_crossentropy', metrics=['acc',], optimizer=rms)
+inner_model.evaluate(x_test, y_test, verbose = True)
+pass
