@@ -9,6 +9,7 @@ A siamese network is implemented with the regular twin-branch architecture and t
 The performance metric is the accuracy in matching digits of the same class.
 
 """
+
 import numpy as np
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.datasets import cifar10
