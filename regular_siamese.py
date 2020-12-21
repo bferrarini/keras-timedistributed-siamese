@@ -2,12 +2,12 @@
 Copyright (c) 2020
 Author:
   Bruno Ferrarini (University of Essex)
-This project is licensed under MIT.
+This project is licensed under MIT. 
 
 The source code is a modified version of the example shared at https://gist.github.com/mmmikael/0a3d4fae965bdbec1f9d to work with Tensorflow 2.0
 A siamese network is implemented with the regular twin-branch architecture and trained on MNIST.
 The performance metric is the accuracy in matching digits of the same class.
-
+.
 """
 
 import numpy as np
